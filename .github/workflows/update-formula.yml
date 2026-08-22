@@ -1,0 +1,102 @@
+name: update-formula
+
+# Regenerates Formula/onyx.rb from the latest Boreas37/onyx release:
+# bumps version, recomputes sha256 for every platform tarball, and commits
+# when anything changed. Runs daily and on demand.
+
+on:
+  schedule:
+    - cron: "3 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-formula
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compute latest release values
+        id: rel
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          tag=$(gh release list -R Boreas37/onyx --limit 1 --json tagName --jq '.[0].tagName')
+          version=${tag#v}
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          for a in darwin-arm64 darwin-amd64 linux-arm64 linux-amd64; do
+            sha=$(curl -fsSL "https://github.com/Boreas37/onyx/releases/download/$tag/onyx-$a.tar.gz" | sha256sum | awk '{print $1}')
+            echo "sha_$a=$sha" >> "$GITHUB_OUTPUT"
+          done
+
+      - name: Regenerate formula
+        env:
+          VERSION: ${{ steps.rel.outputs.version }}
+          SHA_DARWIN_ARM64: ${{ steps.rel.outputs.sha_darwin-arm64 }}
+          SHA_DARWIN_AMD64: ${{ steps.rel.outputs.sha_darwin-amd64 }}
+          SHA_LINUX_ARM64: ${{ steps.rel.outputs.sha_linux-arm64 }}
+          SHA_LINUX_AMD64: ${{ steps.rel.outputs.sha_linux-amd64 }}
+        run: |
+          set -euo pipefail
+          mkdir -p Formula
+          cat > Formula/onyx.rb <<FORMULA_EOF
+          class Onyx < Formula
+            desc "Local-first WordPress vulnerability scanner"
+            homepage "https://github.com/Boreas37/onyx"
+            version "$VERSION"
+
+            on_macos do
+              if Hardware::CPU.arm?
+                url "https://github.com/Boreas37/onyx/releases/download/v$VERSION/onyx-darwin-arm64.tar.gz"
+                sha256 "$SHA_DARWIN_ARM64"
+              else
+                url "https://github.com/Boreas37/onyx/releases/download/v$VERSION/onyx-darwin-amd64.tar.gz"
+                sha256 "$SHA_DARWIN_AMD64"
+              end
+            end
+
+            on_linux do
+              if Hardware::CPU.arm?
+                url "https://github.com/Boreas37/onyx/releases/download/v$VERSION/onyx-linux-arm64.tar.gz"
+                sha256 "$SHA_LINUX_ARM64"
+              else
+                url "https://github.com/Boreas37/onyx/releases/download/v$VERSION/onyx-linux-amd64.tar.gz"
+                sha256 "$SHA_LINUX_AMD64"
+              end
+            end
+
+            def install
+              bin.install "onyx"
+            end
+
+            test do
+              assert_match version.to_s, shell_output("#{bin}/onyx version")
+            end
+          end
+          FORMULA_EOF
+
+      - name: Dedent formula (heredoc keeps YAML indentation)
+        run: sed -i 's/^          //' Formula/onyx.rb
+
+      - name: Commit when changed
+        run: |
+          set -euo pipefail
+          ruby -c Formula/onyx.rb
+          git config user.name "onyx tap bot"
+          git config user.email "actions@users.noreply.github.com"
+          if git diff --quiet && [ "$(git status --porcelain | wc -l)" = "0" ]; then
+            echo "Formula already up to date (version ${{ steps.rel.outputs.version }})"
+            exit 0
+          fi
+          git add Formula/onyx.rb
+          git commit -m "onyx ${{ steps.rel.outputs.version }}" || {
+            echo "nothing to commit"; exit 0; }
+          git push
