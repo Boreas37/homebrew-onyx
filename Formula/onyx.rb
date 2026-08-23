@@ -6,20 +6,20 @@ class Onyx < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/Boreas37/onyx/releases/download/v0.3.1/onyx-darwin-arm64.tar.gz"
-      sha256 "d55441482979b3e3033c97510fcd8c51d65380c8c35d7f17815dcedf7a0d017a"
+      sha256 "6054c72a8f31e50b949e5ed1e6860534cd3769d88a7072045280cb15569acb81"
     else
       url "https://github.com/Boreas37/onyx/releases/download/v0.3.1/onyx-darwin-amd64.tar.gz"
-      sha256 "f46b4cd4c68397caf9f7b7e82b79dfafbff1847c352534238e936172c3e9b9b5"
+      sha256 "eaf98fa44c7f744c9847f5ed70c67000e27f0d839cc87fa264f13bfef7984c70"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
       url "https://github.com/Boreas37/onyx/releases/download/v0.3.1/onyx-linux-arm64.tar.gz"
-      sha256 "ba68cb98f81dcd6112a655ef7c97392edb0c9fc1079b844f6190b924b037ab6a"
+      sha256 "256afd6ab6516bf26227bd567443d4917fef30f0c992151dce0c5e172829e37b"
     else
       url "https://github.com/Boreas37/onyx/releases/download/v0.3.1/onyx-linux-amd64.tar.gz"
-      sha256 "d2064720adcc47efabe83160d3681d98fa601e015f11ceb97cfe53efb2d51557"
+      sha256 "beee170ae439e1a12e70c4d36899c13048d8ea3c5276869803b74d0112dd559f"
     end
   end
 
