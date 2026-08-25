@@ -1,25 +1,25 @@
 class Onyx < Formula
   desc "Local-first WordPress vulnerability scanner"
   homepage "https://github.com/Boreas37/onyx"
-  version "0.8.0"
+  version "0.9.0"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/Boreas37/onyx/releases/download/v0.8.0/onyx-darwin-arm64.tar.gz"
-      sha256 "8c6c57ff05e7b21e9249c7ec9562ef1c1ef04b5940a36d6a9791f8e9daf90cb2"
+      url "https://github.com/Boreas37/onyx/releases/download/v0.9.0/onyx-darwin-arm64.tar.gz"
+      sha256 "163af017f86e1363b32108a3d16b4b80bb2601060170ad9d6c8808a5dce06a47"
     else
-      url "https://github.com/Boreas37/onyx/releases/download/v0.8.0/onyx-darwin-amd64.tar.gz"
-      sha256 "2ad952c7ab6cdc06a422b3d05283707a3aab73dbf3b8eb228013c507db21af32"
+      url "https://github.com/Boreas37/onyx/releases/download/v0.9.0/onyx-darwin-amd64.tar.gz"
+      sha256 "13e020ebe5f3253dce07ffc0fa0359282b98fbddebc5fc467d9a94c47b81dfc7"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/Boreas37/onyx/releases/download/v0.8.0/onyx-linux-arm64.tar.gz"
-      sha256 "a42dece64af2100cd704ed25b78d52cad47d70dd45167d971cb7510f94b20684"
+      url "https://github.com/Boreas37/onyx/releases/download/v0.9.0/onyx-linux-arm64.tar.gz"
+      sha256 "1b48db63945bf90aa70c728af7bea6ee72af33027563a61819a0b58e6f5a5d8e"
     else
-      url "https://github.com/Boreas37/onyx/releases/download/v0.8.0/onyx-linux-amd64.tar.gz"
-      sha256 "30445177d6b65cb55b0045a0ac936f98d38f9590d5e258d97f8a25d3206f238b"
+      url "https://github.com/Boreas37/onyx/releases/download/v0.9.0/onyx-linux-amd64.tar.gz"
+      sha256 "31a51b4610f889a005f88ad4ab90ea1e5576099df110668dbd9b3390a04dea2e"
     end
   end
 
